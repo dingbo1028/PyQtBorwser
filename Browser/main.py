@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("BoBrowser")
         self.setWindowIcon(QIcon('../icons/penguin.png'))
-        self.show()
+        self.showMaximized()
 
         self.tabs = QTabWidget()
         self.tabs.setDocumentMode(True)
@@ -45,16 +45,19 @@ class MainWindow(QMainWindow):
         navigation_bar.setIconSize(QSize(16, 16))
         self.addToolBar(navigation_bar)
 
+        homepage_button = QAction(QIcon('../icons/penguin.png'), 'Home', self)
         back_button = QAction(QIcon('../icons/back.png'), 'Back', self)
         next_button = QAction(QIcon('../icons/next.png'), 'Forward', self)
         stop_button = QAction(QIcon('../icons/cross.png'), 'stop', self)
         reload_button = QAction(QIcon('../icons/renew.png'), 'Reload', self)
 
+        homepage_button.triggered.connect(self.back_to_homepage)
         back_button.triggered.connect(self.tabs.currentWidget().back)
         next_button.triggered.connect(self.tabs.currentWidget().forward)
         stop_button.triggered.connect(self.tabs.currentWidget().stop)
         reload_button.triggered.connect(self.tabs.currentWidget().reload)
 
+        navigation_bar.addAction(homepage_button)
         navigation_bar.addAction(back_button)
         navigation_bar.addAction(next_button)
         navigation_bar.addAction(stop_button)
@@ -90,7 +93,7 @@ class MainWindow(QMainWindow):
         browser.urlChanged.connect(lambda qurl, browser=browser: self.renew_urlbar(qurl, browser))
 
         # 加载完成之后添加标题
-        browser.loadFinished.connect(lambda _, i=i, browswe=browser:
+        browser.loadFinished.connect(lambda _, i=i, browser=browser:
                                      self.tabs.setTabText(i, browser.page().mainFrame().title()))
 
     def close_current_tab(self, i):
@@ -106,9 +109,13 @@ class MainWindow(QMainWindow):
         qurl = self.tabs.currentWidget().url()
         self.renew_urlbar(qurl, self.tabs.currentWidget())
 
+    def back_to_homepage(self):
+        q = QUrl('http://www.hao123.com')
+        self.tabs.currentWidget().setUrl(q)
+
 app = QApplication(sys.argv)
 window = MainWindow()
 
-window.show()
+window.showMaximized()
 
 app.exec_()
